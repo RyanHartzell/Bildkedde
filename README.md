@@ -14,12 +14,12 @@ An extensible imaging system simulation library utilizing an MTF and image chain
 
 - Fourier transform stuff for far-field (Fraunhofer) imaging
 - Can I even bother with (Fresnel) near field for this?
-- Investigate available python optics libraries
-- Image/Response object
-- Object/Impulse object
-- MTF/OTF object
+- Investigate available python optics libraries (for now we're assuming abberations and distortion are calculated independently)
+- Image object
+- Object object
+- MTF(abs)/OTF(complex) object
 - PSF object
-- PRF object
+- PRF/PixelTF object (requires knowledge of FPA properties such as sampling and pixel dimensions, but useful for analytics and processing tricks!)
 - HDF5 (or numpy) LUT support
-- Element object (basically a processor instance. __call__ func stores the primary input as the impulse, and processing can also be delayed or run immediately (by default). Has start/impulse, end/response, transfer properties, all of which are objects with spatial and frequency properties, and also a during/z/t(normalized_z_or_time_slice) which can be implemented to render the effects of transfer function as the wavefront/impulse travels through space/time/the element.
+- Element object (basically a processor instance. __call__ func stores the primary input as the impulse, and processing can also be delayed or run immediately (by default). Has input/impulse/object, output/response/image, transfer properties, all of which are objects with spatial and frequency properties, and also a during/z/t(normalized_z_or_time_slice) which can be implemented to render the effects of space-time-dependent transfer function as the wavefront/input travels through the element.
 - System object (consists of our graph of optical/electronic/modifier/mathematical elements) -> This will be base for Optics/FPA/Readout
