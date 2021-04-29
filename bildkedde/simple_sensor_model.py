@@ -21,9 +21,9 @@ def voltage2counts(voltage, vswing=1.0, bits=12, mode="round"):
     # we'll just call vmin=0 for now, and vref represents maximum voltage which can be captured by ADC
     K = vswing / 2**bits
     if mode=="round":
-        return np.round(voltage / K)
+        return np.round(voltage / K).astype(np.int16)
     elif mode=="floor":
-        return np.floor(voltage / K)
+        return np.floor(voltage / K).astype(np.int16)
 
 if __name__ == "__main__":
     # Example 1) Single Pixel Detector
