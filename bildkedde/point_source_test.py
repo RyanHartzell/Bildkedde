@@ -10,6 +10,7 @@ cp.random.seed(69)
 
 # Start with basic convolution kernel in subpixel space, then expand to MTF method. Need higher subsampling rate and padding cleverness
 # Think "filter banks"
+# This implementation is ripped from image pypelines!!! I should think about integrating with it properly
 def low_pass(img, cut_off, filter_type='ideal', butterworth_order=1):
     """calculates a lowpass filter for an input image
 
@@ -73,7 +74,11 @@ def empirical_psf(pupil):
 if __name__=="__main__":
     import sys
 
-    mode = sys.argv[1]
+    mode = "mtf"
+
+    if len(sys.argv) > 1:
+        mode = sys.argv[1]
+
     if not (mode in ["mtf","separable"]):
         raise ValueError("Must run with mode of 'mtf' or 'separable'")
 
