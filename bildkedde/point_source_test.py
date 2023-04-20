@@ -82,9 +82,12 @@ if __name__=="__main__":
     if not (mode in ["mtf","separable"]):
         raise ValueError("Must run with mode of 'mtf' or 'separable'")
 
-    # based on 256x256 input, x3 in each direction for 3x3 sumpsamples per pixel
+    # based on 256x256 input, x3 in each direction for 3x3 sumpsamples per pixel (should be turned into a variable supersampling function)
     arr = np.ones((256*3, 256*3)) * 1e-17
-    print(arr.shape)
+    print("Supersampled scene shape:", arr.shape)
+
+    # Instead of a random sampling of deltas, you can instead project an actual radiance map to the focal plane (converted to irradiance) and work with that as input
+    # I just need to put the necessary hooks in to make this stuff easy to extend
 
     deltas = np.random.choice(np.array([False,True]), arr.shape, p=[0.99995, 0.00005])
     n_deltas = deltas.sum()
@@ -92,6 +95,7 @@ if __name__=="__main__":
 
     irrads = np.random.uniform(1e-15, 1e-17, n_deltas)
     arr[deltas] = irrads
+    print(f"Aperture Referred In-Band Irradiance: Mean={arr.mean()}, Max={arr.max()}, Min={arr.min()}")
 
     # plt.hist(arr.flat, 100, log=True)
     # plt.show()
@@ -106,7 +110,7 @@ if __name__=="__main__":
         kernel = np.array([0.05, 0.05, 0.15, 0.5, 0.15 , 0.05, 0.05])
         filtered = separable_conv(arr, kernel, kernel)
 
-    else:
+    elif mode == "mtf":
 
         # test of psf == autocorrelation of aperture, mtf == FFT(psf) -> Currently working!!!
         psf = empirical_psf(low_pass(arr, 5, filter_type='ideal'))
@@ -120,6 +124,9 @@ if __name__=="__main__":
         # axes[1,0].imshow(np.abs(mtf.real))
         # axes[1,1].imshow(np.abs(mtf.imag))
         # plt.show()
+
+    else:
+        raise ValueError(f"No known 'mode' matches the one specified ({mode})... exiting now.")
 
     # Aggregate into "original" 256 x 256 image by summing every chunk of NxN subarrays
     agg = np.sum([np.vsplit(v, filtered.shape[0]//3) for v in np.hsplit(filtered, filtered.shape[0]//3)], axis=(2,3)).T
