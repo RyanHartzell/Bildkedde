@@ -82,8 +82,11 @@ if __name__=="__main__":
     if not (mode in ["mtf","separable"]):
         raise ValueError("Must run with mode of 'mtf' or 'separable'")
 
+    Nx = Ny = 1024
+    super_sampling_factor = 9
+
     # based on 256x256 input, x3 in each direction for 3x3 sumpsamples per pixel (should be turned into a variable supersampling function)
-    arr = np.ones((256*3, 256*3)) * 1e-17
+    arr = np.ones((Ny*super_sampling_factor, Nx*super_sampling_factor)) * 1e-17
     print("Supersampled scene shape:", arr.shape)
 
     # Instead of a random sampling of deltas, you can instead project an actual radiance map to the focal plane (converted to irradiance) and work with that as input
@@ -129,7 +132,7 @@ if __name__=="__main__":
         raise ValueError(f"No known 'mode' matches the one specified ({mode})... exiting now.")
 
     # Aggregate into "original" 256 x 256 image by summing every chunk of NxN subarrays
-    agg = np.sum([np.vsplit(v, filtered.shape[0]//3) for v in np.hsplit(filtered, filtered.shape[0]//3)], axis=(2,3)).T
+    agg = np.sum([np.vsplit(v, filtered.shape[0]//super_sampling_factor) for v in np.hsplit(filtered, filtered.shape[0]//super_sampling_factor)], axis=(2,3)).T
 
     # Run full pipeline against "actual scene"
     from simple_sensor_model import *
@@ -150,13 +153,17 @@ if __name__=="__main__":
     del electrons
 
     counts = voltage2counts(voltage, bits=16)
-
-    print(f"The staring detector array model results in an image of counts given an array of input irradiances.")
-    print(f"Total execution time = {time.time() - start}")
-    print(f"Counts: Mean={counts.mean()}, Max={counts.max()}, Min={counts.min()}")
+    del voltage
 
     if isinstance(counts, cp.ndarray):
         counts = counts.get()
+
+    end = time.time()
+
+    print(f"The staring detector array model results in an image of counts given an array of input irradiances.")
+    print(f"Total execution time = {end - start} [s]")
+    print(f"Estimated frames per second = {1/(end - start)} [fps]")
+    print(f"Counts: Mean={counts.mean()}, Max={counts.max()}, Min={counts.min()}")
 
     # Plot input and result
     fig, axes = plt.subplots(1,3)
@@ -177,3 +184,14 @@ if __name__=="__main__":
     # Test 4: With motion in field
 
     # Test 5: With variable PSF over wide field FOV
+
+
+
+
+
+
+    #####################
+    # NOTES
+    #####################
+
+    # Need to make an equivalent filter in separable and MTF cases, and assert that the total energy on FPA is about equal within some tolerance
