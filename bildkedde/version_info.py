@@ -27,17 +27,17 @@ __all__ = [
 
 
 __name__ = 'bildkedde'
-__version__ = '0.0.1-dev'
+__version__ = '0.0.2-dev'
 __description__ = 'Lightweight sensor modeling package'
 
 __author__ = 'Ryan Hartzell'
-__email__ = "bildkedde@gmail.com"
+__email__ = "rah3156@rit.edu"
 __license__ = "MIT"
 __url__ = "https://ryanhartzell.github.io/Bildkedde"
 __download_url__ = 'https://github.com/RyanHartzell/Bildkedde'
 __maintainer__ = "Ryan Hartzell"
-__maintainer_email__ = "bildkedde@gmail.com"
-__keywords__ = 'imaging-science sensor-model image-chain optics radiometry'
+__maintainer_email__ = "rah3156@rit.edu"
+__keywords__ = 'simulation imaging-science sensor-model image-chain optics radiometry'
 __python_requires__ = '>=3.7.*'
 __platforms__ = ["Windows", "Linux", "Mac OS-X", "Unix"]
 __classifiers__ = [

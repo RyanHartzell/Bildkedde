@@ -12,7 +12,7 @@ from scipy import constants
 import cupy as cp
 
 np.random.seed(69)
-cp.random.seed(69)
+# cp.random.seed(69)
 
 
 # Custom code for PSF/MTF and PRF approaches
@@ -143,8 +143,8 @@ if __name__ == "__main__":
     # irrad = cp.ones((3,4096,4096)) * 1e-12
 
     # Run memory check (here we would queue up a bunch of sensible chunks somehow...)
-    if irrad.nbytes >= cp.cuda.Device(cp.cuda.get_device_id()).mem_info[1]:
-        raise MemoryError(f"This job must be batched, with a GPU limit of {cp.cuda.Device(cp.cuda.get_device_id()).mem_info[1]} and total input size of {irrad.nbytes}. Exiting...")
+    # if irrad.nbytes >= cp.cuda.Device(cp.cuda.get_device_id()).mem_info[1]:
+    #     raise MemoryError(f"This job must be batched, with a GPU limit of {cp.cuda.Device(cp.cuda.get_device_id()).mem_info[1]} and total input size of {irrad.nbytes}. Exiting...")
 
     print(f"Irrad: Mean={irrad.mean()}, Max={irrad.max()}, Min={irrad.min()}")
 

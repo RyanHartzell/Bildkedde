@@ -6,7 +6,7 @@ from scipy.ndimage import convolve, convolve1d
 import cupy as cp
 
 np.random.seed(69)
-cp.random.seed(69)
+# cp.random.seed(69)
 
 # Start with basic convolution kernel in subpixel space, then expand to MTF method. Need higher subsampling rate and padding cleverness
 # Think "filter banks"
@@ -79,7 +79,7 @@ if __name__=="__main__":
     if len(sys.argv) > 1:
         mode = sys.argv[1]
 
-    if not (mode in ["mtf","separable"]):
+    if not (mode.lower() in ["mtf","separable"]):
         raise ValueError("Must run with mode of 'mtf' or 'separable'")
 
     Nx = Ny = 1024

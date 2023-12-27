@@ -218,7 +218,7 @@ class Camera:
 ############################################################################################################
 # Some actual radiometry functions!
 ############################################################################################################
-TOTAL_SOLAR_IRRADIANCE_AT_EARTH = 1.356e5 # W / m^2
+TOTAL_SOLAR_IRRADIANCE_AT_EARTH = 1.356e5 # W / m^ (RH: Top of atmosphere? Should be at (EARTH_RADIUS-SUN_CENTER)
 SUN_RADIUS = 6.957e8 # m
 SUN_AREA = np.pi * SUN_RADIUS**2 # m^2
 SUN_EARTH_DISTANCE = 1.495978707e11 # 1 AU = 1.495978707e11 m
@@ -227,30 +227,43 @@ AVG_SOLAR_RADIANCE = TOTAL_SOLAR_IRRADIANCE_AT_EARTH / (SOLID_ANGLE_OF_SUN_AT_EA
 
 # solid angle can be approximated as cross-sectional area / distance for large distances and small effective areas.
 
+# Incoming flux at target
 def target_flux(L_sun, A_sun, A_target, distance_sun_to_target):
     return L_sun * A_sun * A_target / distance_sun_to_target**2
 
+# Outgoing radiance from target
 def radiance_at_target(target_flux, reflectance, A_target, lambertian=True):
     return target_flux * reflectance / (A_target * (lambertian + 1) * np.pi) # branchless
 
+# Incoming flux at aperture
 def aperture_flux(L_target, A_target, sun_angle, A_aperture, distance_target_to_sensor):
     return L_target * A_target * np.cos(sun_angle) * A_aperture / distance_target_to_sensor**2
 
 # I should probably write variants above which take as input just the integrated solid angle of an arbitrary surface wrt some point 
 # That being said, this is all you need for an unresolved point source!!!!
 # For a resolved source, you really need to sample a bunch of "points" which make up the overall target radiance
+
+# Slight discrepancy with target_flux -> radiance_at_target -> aperture_flux
 def irradiance_at_aperture(L_sun, A_sun, A_target, reflectance, solar_angle, distance_sun_to_target, distance_target_to_sensor, lambertian=True):
     return L_sun * A_sun * A_target * np.cos(solar_angle) * reflectance / (distance_sun_to_target**2 * distance_target_to_sensor**2 * (lambertian + 1) * np.pi)
 
-# Helper
+# Helpers
 def aperture_area(aperture_radius):
     return np.pi * aperture_radius**2
+
+def approximate_solid_angle(projected_area_at_distance, distance):
+    return projected_area_at_distance / distance**2
 
 def effective_focal_length_to_afov(f, detector_array_physical_size):
     return 2 * np.arctan(detector_array_physical_size / (2 * f))
 
 def afov_to_effective_focal_length(afov, detector_array_physical_size):
     return detector_array_physical_size / (2 * np.tan(afov / 2))
+
+# not necessary for small AFOV sensors, but techincally necessary for large format large AFOV sensors.
+# constant pixel size in physical units, converted to spherical angles
+def effective_focal_length_to_ifov():
+    return None
 
 # target to pixel (from CMU notes, but check against Dr. Ientiluci's class notes)
 #   if not given effective focal length, need to know pixel IFOV I think???
@@ -260,7 +273,16 @@ def irradiance_at_pixel(scene_radiance, focal_length, angle_off_boresight, apert
 #############################################################################################################
 # Test for extremes
 # This could also just be (distance_sun_to_target, distance_target_to_sensor, solar_phase_angle, area_cross_section, pixel_ifov, pixel_angle_off_boresight)
-def test_irradiance_at_pixel_from_sun_to_target_to_sensor(sun_pos_ecef, target_pos_ecef, sensor_pos_ecef, target_diameter, aperture_area):
+def test_irradiance_at_pixel_from_sun_to_target_to_sensor(sun_pos_eci, target_pos_eci, sensor_pos_eci, target_diameter, aperture_area):
+
+    # phi_at_target = target_flux(AVG_SOLAR_RADIANCE, SUN_AREA, )
+
+    # L = 
+
+    # E = irradiance_at_pixel(L, f, db, aperture_area)
+    
+    # return E
+
     return None
 
 #############################################################################################################
@@ -463,10 +485,28 @@ if __name__=="__main__":
     from point_source_test import *
     from simple_sensor_model import *
 
-    # Create a bunch of world frame XYZ points with 
+    # Create a bunch of world frame XYZ points with associated  
+    bx = np.random.uniform(-np.pi/8, np.pi/8, 1000)
+    by = np.random.uniform(-np.pi/8, np.pi/8, 1000)
+    r = np.random.uniform(5000, 50000, 1000) # units of km
 
     # Setup a camera
+    cam = Camera([0,0,0])
 
-    # Project points to image plane
+    # Project boresight pts to camera frame
+    # Technically I can go straight from boresight to image...
+    cam_pts = np.array(boresight2camera(bx, by)) * r # scale out to actual distance along unit vector direction
 
-    # 
+    # Project to image plane
+    img_pts = camera2image_plane(cam_pts, efl=1.0)
+
+    # Show img_pts in image plane
+    plt.scatter(img_pts[0], img_pts[1], c=r)
+    plt.show()
+
+    # Now run these points through sensor model given sun angle and range and target size and albedo...
+    # irrads = 
+
+    ####################################################################################
+    # Do the same using a celestrak catalog
+    # XYZ in time -> Set up camera on some arbitrary host satellite -> Subsample in XYZ or boresight -> Calculate irradiance @ aperture -> Convert to Image Space -> Send through sensor model
