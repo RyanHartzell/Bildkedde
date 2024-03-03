@@ -505,8 +505,100 @@ if __name__=="__main__":
     plt.show()
 
     # Now run these points through sensor model given sun angle and range and target size and albedo...
-    # irrads = 
+    from simple_sensor_model import *
+    aperture_refferred_irrads = irradiance_at_aperture(AVG_SOLAR_RADIANCE, SUN_AREA, 10.0**2, 0.7, np.random.uniform(0., np.pi/4, size=r.shape), np.random.uniform(SUN_EARTH_DISTANCE, SUN_EARTH_DISTANCE+1e3, size=r.shape), r)
+
+    print(aperture_refferred_irrads.shape)
+    print(aperture_refferred_irrads.mean())
+    print(aperture_refferred_irrads.std())
+    print(aperture_refferred_irrads.min())
+    print(aperture_refferred_irrads.max())
+
+    # Show img_pts on focal plane, colored by brightness
+    physical_pixel_size = 0.001 # 1mm in units of m
+    fpa_pts = np.asarray(img_pts) * physical_pixel_size * 1000 # now units of mm
+
+    plt.scatter(fpa_pts[0], fpa_pts[1], c=aperture_refferred_irrads)
+    plt.xlabel("FPA X (column) [mm]")
+    plt.xlabel("FPA Y (row) [mm]")
+    plt.show()
+
+    Nx = Ny = 1024
+    super_sampling_factor = 9
+
+    # based on 256x256 input, x3 in each direction for 3x3 sumpsamples per pixel (should be turned into a variable supersampling function)
+    arr = np.ones((Ny*super_sampling_factor, Nx*super_sampling_factor)) * 1e-17
+    print("Supersampled scene shape:", arr.shape)
+
+    # Should technically include a shift here to origin at corner of image, rather than boresight
+    pix_pts = np.zeros_like(fpa_pts)
+    pix_pts[0] = fpa_pts[0]/Nx + Nx/2
+    pix_pts[1] = fpa_pts[1]/Ny + Ny/2
+    plt.scatter(pix_pts[0], pix_pts[1], c=aperture_refferred_irrads)
+    plt.xlabel("Pixel X (column) [pix]")
+    plt.xlabel("Pixel Y (row) [pix]")
+    plt.show()
+
+    # Instead of a random sampling of deltas, you can instead project an actual radiance map to the focal plane (converted to irradiance) and work with that as input
+    # I just need to put the necessary hooks in to make this stuff easy to extend
+
+    # deltas = np.random.choice(np.array([False,True]), arr.shape, p=[0.99995, 0.00005])
+    # n_deltas = deltas.sum()
+    # print(f"% deltas = {n_deltas / arr.size}")
+
+    # Deltas and irradiances given by pix_pts and aperture_referred_irrads
+    pix_pts_ss_inds = np.array([pix_pts[0]//(Nx*super_sampling_factor), pix_pts[1]//(Ny*super_sampling_factor)], dtype=int).T
+
+    # Need some array tricks here - deltas can occupy same pixel and need to be accumulated fast, possibly by sorting inds into blocks or aggegrating all instances of each repeated index
+    for i in range(len(aperture_refferred_irrads)):
+        arr[pix_pts_ss_inds[i]] += aperture_refferred_irrads[i]
+
+    print(f"Aperture Referred In-Band Irradiance: Mean={arr.mean()}, Max={arr.max()}, Min={arr.min()}")
+
+    start = time.time()
+
+    # test of psf == autocorrelation of aperture, mtf == FFT(psf) -> Currently working!!!
+    psf = empirical_psf(low_pass(arr, 5, filter_type='ideal'))
+    mtf = np.fft.fftshift(np.fft.fft2(psf / psf.sum())) # We want to use the FFT of the volume-normalized psf array (sums to 1)
+
+    filtered = np.abs(np.fft.fftshift(np.fft.ifft2(np.fft.fftshift(np.fft.fft2(arr)) * mtf))).astype(float)
+
+    # Aggregate into "original" N x M image by summing every chunk of KxK subarrays
+    # This needs to be quicker, but for now this double for loop list comprehension is fine
+    agg = np.sum([np.vsplit(v, filtered.shape[0]//super_sampling_factor) for v in np.hsplit(filtered, filtered.shape[1]//super_sampling_factor)], axis=(2,3)).T
+    plt.imshow(agg.astype(float))
+    plt.show()
+
+    # Now send these through the sensor model, assuming total irradiance on detector after spread applied
+    electrons = irrad2electrons(agg)
+    print(f"Electrons: Mean={electrons.mean()}, Max={electrons.max()}, Min={electrons.min()}")
+    del agg
+
+    electrons = apply_photo_response_non_uniformity(electrons, 0.01)
+    print(f"Post-PRNU: Mean={electrons.mean()}, Max={electrons.max()}, Min={electrons.min()}")
+
+    electrons = apply_dark_fixed_pattern_noise(electrons, dark_signal(electrons, 10)) # electrons per second, and poisson process applied
+    print(f"Post-Dark: Mean={electrons.mean()}, Max={electrons.max()}, Min={electrons.min()}")
+
+    voltage = electrons2voltage(electrons)
+    print(f"Voltage: Mean={voltage.mean()}, Max={voltage.max()}, Min={voltage.min()}")
+    del electrons
+
+    counts = voltage2counts(voltage)
+
+    print(f"The staring detector array model results in an image of counts given an array of input irradiances.")
+    print(f"Total execution time = {time.time() - start}")
+    print(f"Counts: Mean={counts.mean()}, Max={counts.max()}, Min={counts.min()}")
+
+    if isinstance(counts, cp.ndarray):
+        counts = counts.get()
+
+    import matplotlib.pyplot as plt
+    from matplotlib.colors import LogNorm
+    plt.imshow(counts, cmap="inferno", norm=LogNorm())
+    plt.colorbar()
+    plt.show()
 
     ####################################################################################
-    # Do the same using a celestrak catalog
+    # Do the same using a celestrak catalog and star catalog
     # XYZ in time -> Set up camera on some arbitrary host satellite -> Subsample in XYZ or boresight -> Calculate irradiance @ aperture -> Convert to Image Space -> Send through sensor model
