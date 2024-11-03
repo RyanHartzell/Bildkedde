@@ -1,4 +1,5 @@
 import numpy as np
+from matplotlib.colors import LogNorm
 
 def check_orthagonal(a, b):
     return np.isclose(np.dot(a,b), 0.0, atol=1e-20)
@@ -254,14 +255,18 @@ def aperture_area(aperture_radius):
 def approximate_solid_angle(projected_area_at_distance, distance):
     return projected_area_at_distance / distance**2
 
-def effective_focal_length_to_afov(f, detector_array_physical_size):
-    return 2 * np.arctan(detector_array_physical_size / (2 * f))
+
+# tan(afov/2) = (sensor_size/2)/efl
+# efl = (sensor_size/2) / (tan(afov/2))
+# afov = 2 * arctan2(sensor_size/2, efl)
+def effective_focal_length_to_afov(efl, detector_array_physical_size):
+    return 2. * np.arctan2(detector_array_physical_size/2, efl)
 
 def afov_to_effective_focal_length(afov, detector_array_physical_size):
-    return detector_array_physical_size / (2 * np.tan(afov / 2))
+    return (detector_array_physical_size) / (2 * np.tan(afov * 0.5))
 
 # not necessary for small AFOV sensors, but techincally necessary for large format large AFOV sensors.
-# constant pixel size in physical units, converted to spherical angles
+# constant pixel size in physical units, converted to *variable* spherical angles
 def effective_focal_length_to_ifov():
     return None
 
@@ -300,7 +305,7 @@ At this point, we have the input to the sensor model!!! This will apply MTF effe
 
 """
 
-# Use this to illuminate target from 
+# Use this to illuminate target from Sun (large area source at a distance)
 def generate_forward_parallel_sun_ray_bundle(N, unit_vec, radius):
     X = np.random.uniform(-radius,radius,N)
     Y = np.random.uniform(-radius,radius,N)
@@ -390,7 +395,7 @@ if __name__=="__main__":
     # Get difference in camera X and camera Y from point to boresight (Can also do this directly in AZEL but need spherical coordinate great circle distance)
     def camera2boresight(target):
         bx = np.arctan2(target[0], target[2]) # atan2(x / z)
-        by = np.arctan2(target[1], target[2]) # atan2(x / z)
+        by = np.arctan2(target[1], target[2]) # atan2(y / z)
         return bx, by
     
     # Project camera frame to image plane with SIMPLE IDEAL PERSPECTIVE TRANSFORM
@@ -520,11 +525,11 @@ if __name__=="__main__":
 
     plt.scatter(fpa_pts[0], fpa_pts[1], c=aperture_refferred_irrads)
     plt.xlabel("FPA X (column) [mm]")
-    plt.xlabel("FPA Y (row) [mm]")
+    plt.ylabel("FPA Y (row) [mm]")
     plt.show()
 
-    Nx = Ny = 1024
-    super_sampling_factor = 9
+    Nx = Ny = 256
+    super_sampling_factor = 3
 
     # based on 256x256 input, x3 in each direction for 3x3 sumpsamples per pixel (should be turned into a variable supersampling function)
     arr = np.ones((Ny*super_sampling_factor, Nx*super_sampling_factor)) * 1e-17
@@ -532,11 +537,12 @@ if __name__=="__main__":
 
     # Should technically include a shift here to origin at corner of image, rather than boresight
     pix_pts = np.zeros_like(fpa_pts)
-    pix_pts[0] = fpa_pts[0]/Nx + Nx/2
-    pix_pts[1] = fpa_pts[1]/Ny + Ny/2
+    pix_pts[0] = fpa_pts[0]/Ny + Ny/2
+    pix_pts[1] = fpa_pts[1]/Nx + Nx/2
     plt.scatter(pix_pts[0], pix_pts[1], c=aperture_refferred_irrads)
     plt.xlabel("Pixel X (column) [pix]")
-    plt.xlabel("Pixel Y (row) [pix]")
+    plt.ylabel("Pixel Y (row) [pix]")
+    plt.colorbar()
     plt.show()
 
     # Instead of a random sampling of deltas, you can instead project an actual radiance map to the focal plane (converted to irradiance) and work with that as input
@@ -547,26 +553,38 @@ if __name__=="__main__":
     # print(f"% deltas = {n_deltas / arr.size}")
 
     # Deltas and irradiances given by pix_pts and aperture_referred_irrads
-    pix_pts_ss_inds = np.array([pix_pts[0]//(Nx*super_sampling_factor), pix_pts[1]//(Ny*super_sampling_factor)], dtype=int).T
+    pix_pts_ss_inds = np.array([pix_pts[0]//(Ny*super_sampling_factor), pix_pts[1]//(Nx*super_sampling_factor)], dtype=np.int64).T
 
     # Need some array tricks here - deltas can occupy same pixel and need to be accumulated fast, possibly by sorting inds into blocks or aggegrating all instances of each repeated index
     for i in range(len(aperture_refferred_irrads)):
-        arr[pix_pts_ss_inds[i]] += aperture_refferred_irrads[i]
+        arr[pix_pts_ss_inds[i]] = arr[pix_pts_ss_inds[i]] + aperture_refferred_irrads[i]
+
+    # plt.imshow(arr, norm=LogNorm())
+    # plt.show()
 
     print(f"Aperture Referred In-Band Irradiance: Mean={arr.mean()}, Max={arr.max()}, Min={arr.min()}")
 
     start = time.time()
 
     # test of psf == autocorrelation of aperture, mtf == FFT(psf) -> Currently working!!!
-    psf = empirical_psf(low_pass(arr, 5, filter_type='ideal'))
+    psf = empirical_psf(low_pass(arr, 11, filter_type='ideal'))
     mtf = np.fft.fftshift(np.fft.fft2(psf / psf.sum())) # We want to use the FFT of the volume-normalized psf array (sums to 1)
 
-    filtered = np.abs(np.fft.fftshift(np.fft.ifft2(np.fft.fftshift(np.fft.fft2(arr)) * mtf))).astype(float)
+    # filtered = np.abs(np.fft.fftshift(np.fft.ifft2(np.fft.fftshift(np.fft.fft2(arr)) * mtf))).astype(float)
+    filtered = np.abs(np.fft.ifftshift(np.fft.ifft2(np.fft.fftshift(np.fft.fft2(arr)) * mtf))).astype(float)
+    plt.imshow(filtered, cmap='inferno', norm=LogNorm())
+    plt.show()
 
     # Aggregate into "original" N x M image by summing every chunk of KxK subarrays
     # This needs to be quicker, but for now this double for loop list comprehension is fine
-    agg = np.sum([np.vsplit(v, filtered.shape[0]//super_sampling_factor) for v in np.hsplit(filtered, filtered.shape[1]//super_sampling_factor)], axis=(2,3)).T
-    plt.imshow(agg.astype(float))
+    print(filtered.shape)
+    agg = np.asarray([np.vsplit(v, filtered.shape[0]//super_sampling_factor) for v in np.hsplit(filtered, filtered.shape[1]//super_sampling_factor)])
+    print(agg.shape)
+
+    agg = agg.sum(axis=(2,3))
+    print(agg.shape)
+
+    plt.imshow(agg)
     plt.show()
 
     # Now send these through the sensor model, assuming total irradiance on detector after spread applied

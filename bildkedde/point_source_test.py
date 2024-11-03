@@ -166,6 +166,7 @@ if __name__=="__main__":
     print(f"Counts: Mean={counts.mean()}, Max={counts.max()}, Min={counts.min()}")
 
     # Plot input and result
+    from matplotlib.colors import LogNorm
     fig, axes = plt.subplots(1,3)
     axes[0].imshow(filtered, cmap="inferno")
     axes[1].imshow(counts, cmap="inferno") #, vmin=1000, vmax=counts.mean()+3*counts.std()) #, vmin=counts.min(), vmax=counts.max())
