@@ -1,0 +1,251 @@
+>>> import numpy as np
+>>> def irrad2electrons(irrad, aperture=1.0, integration_time=1.0, average_photon_energy=):
+  File "<stdin>", line 1
+    def irrad2electrons(irrad, aperture=1.0, integration_time=1.0, average_photon_energy=):
+                                                                                         ^
+SyntaxError: invalid syntax
+>>> def photon_energy_per_wavelength(lambda=550e-9):
+  File "<stdin>", line 1
+    def photon_energy_per_wavelength(lambda=550e-9):
+                                     ^
+SyntaxError: invalid syntax
+>>> 
+>>> from scipy import constants
+>>> constants.
+Display all 162 possibilities? (y or n)
+constants.Avogadro                constants.bar                     constants.exa                     constants.hour                    constants.mil                     constants.sigma
+constants.Boltzmann               constants.barrel                  constants.exbi                    constants.hp                      constants.mile                    constants.slinch
+constants.Btu                     constants.bbl                     constants.femto                   constants.inch                    constants.milli                   constants.slug
+constants.Btu_IT                  constants.blob                    constants.fermi                   constants.k                       constants.minute                  constants.speed_of_light
+constants.Btu_th                  constants.c                       constants.find(                   constants.kgf                     constants.mmHg                    constants.speed_of_sound
+constants.ConstantWarning(        constants.calorie                 constants.fine_structure          constants.kibi                    constants.mph                     constants.stone
+constants.G                       constants.calorie_IT              constants.fluid_ounce             constants.kilo                    constants.mu_0                    constants.survey_foot
+constants.Julian_year             constants.calorie_th              constants.fluid_ounce_US          constants.kilogram_force          constants.nano                    constants.survey_mile
+constants.N_A                     constants.carat                   constants.fluid_ounce_imp         constants.kmh                     constants.nautical_mile           constants.tebi
+constants.Planck                  constants.centi                   constants.foot                    constants.knot                    constants.neutron_mass            constants.tera
+constants.R                       constants.codata                  constants.g                       constants.lambda2nu(              constants.nu2lambda(              constants.test(
+constants.Rydberg                 constants.constants               constants.gallon                  constants.lb                      constants.ounce                   constants.ton_TNT
+constants.Stefan_Boltzmann        constants.convert_temperature(    constants.gallon_US               constants.lbf                     constants.oz                      constants.torr
+constants.Wien                    constants.day                     constants.gallon_imp              constants.light_year              constants.parsec                  constants.troy_ounce
+constants.acre                    constants.deci                    constants.gas_constant            constants.liter                   constants.pebi                    constants.troy_pound
+constants.alpha                   constants.degree                  constants.gibi                    constants.litre                   constants.peta                    constants.u
+constants.angstrom                constants.degree_Fahrenheit       constants.giga                    constants.long_ton                constants.physical_constants      constants.unit(
+constants.arcmin                  constants.deka                    constants.golden                  constants.m_e                     constants.pi                      constants.value(
+constants.arcminute               constants.dyn                     constants.golden_ratio            constants.m_n                     constants.pico                    constants.week
+constants.arcsec                  constants.dyne                    constants.grain                   constants.m_p                     constants.point                   constants.yard
+constants.arcsecond               constants.e                       constants.gram                    constants.m_u                     constants.pound                   constants.year
+constants.astronomical_unit       constants.eV                      constants.gravitational_constant  constants.mach                    constants.pound_force             constants.yobi
+constants.atm                     constants.electron_mass           constants.h                       constants.mebi                    constants.precision(              constants.yotta
+constants.atmosphere              constants.electron_volt           constants.hbar                    constants.mega                    constants.proton_mass             constants.zebi
+constants.atomic_mass             constants.elementary_charge       constants.hectare                 constants.metric_ton              constants.psi                     constants.zepto
+constants.atto                    constants.epsilon_0               constants.hecto                   constants.micro                   constants.pt                      constants.zero_Celsius
+constants.au                      constants.erg                     constants.horsepower              constants.micron                  constants.short_ton               constants.zetta
+>>> constants.electron_volt
+1.602176634e-19
+>>> constants.Planck
+6.62607015e-34
+>>> constants.day
+86400.0
+>>> constants.hour
+3600.0
+>>> constants.minute
+60.0
+>>> constants.speed_of_light
+299792458.0
+>>> def photon_energy_per_wavelength(lambda=550e-9, mode="J"):
+  File "<stdin>", line 1
+    def photon_energy_per_wavelength(lambda=550e-9, mode="J"):
+                                     ^
+SyntaxError: invalid syntax
+>>> def photon_energy_per_wavelength(l=550e-9, mode="J"):
+...    if mode == "J":
+... 
+  File "<stdin>", line 3
+    
+    ^
+IndentationError: expected an indented block
+>>> def photon_energy_per_wavelength(l=550e-9, mode="J"):
+...    E_p = (constants.Planck * constants.speed_of_light) / l
+...    if mode=="J":
+...       return E_p
+...    elif mode=="eV":
+...       return E_p / constants.electron_volt
+... 
+>>> photon_energy_per_wavelength()
+3.611719740270779e-19
+>>> photon_energy_per_wavelength() * 1000
+3.6117197402707793e-16
+>>> photon_energy_per_wavelength()
+3.611719740270779e-19
+>>> def irrad2electrons(irrad, l=550e-9, aperture=1.0, integration_time=1.0, transmission=1.0, qe=1.0, eod=1.0):
+...    E_p = photon_energy_per_wavelength(l)
+...    signal = (irrad * aperture * integration_time * transmission * qe * eod) / E_p
+...    signal = np.random.poisson(signal)
+...    return signal, np.sqrt(signal)
+... 
+>>> irrad2electrons(1e-16)
+(287, 16.941074346097416)
+>>> irrad2electrons(1e-17)
+(24, 4.898979485566356)
+>>> irrad2electrons(1e-17, integration_time=2)
+(51, 7.14142842854285)
+>>> irrad2electrons(1e-16, integration_time=2)
+(571, 23.895606290697042)
+>>> irrad2electrons(1e-16, integration_time=2)
+(515, 22.693611435820433)
+>>> irrad2electrons(1e-16, integration_time=2)
+(537, 23.173260452512935)
+>>> irrad2electrons(1e-16, integration_time=2)
+(570, 23.874672772626646)
+>>> irrad2electrons(1e-16, integration_time=2)
+(549, 23.430749027719962)
+>>> irrad2electrons(1e-16, integration_time=2)
+(559, 23.643180835073778)
+>>> irrad2electrons(1e-16, integration_time=2)
+(530, 23.021728866442675)
+>>> irrad2electrons(1e-16, integration_time=2)
+(562, 23.706539182259394)
+>>> irrad2electrons(1e-16, integration_time=2)
+(549, 23.430749027719962)
+>>> irrad2electrons(1e-16, integration_time=2)
+(541, 23.259406699226016)
+>>> irrad2electrons(1e-16, integration_time=2)
+(562, 23.706539182259394)
+>>> irrad2electrons(1e-16, integration_time=2)
+(571, 23.895606290697042)
+>>> irrad2electrons(1e-16, integration_time=2)
+(528, 22.978250586152114)
+>>> irrad2electrons(1e-16, integration_time=2)
+(573, 23.93741840717165)
+>>> irrad2electrons(1e-16, integration_time=2)
+(531, 23.043437243605826)
+>>> irrad2electrons(1e-16, integration_time=2)
+(543, 23.302360395462088)
+>>> irrad2electrons(1e-16, integration_time=2)
+(568, 23.83275057562597)
+>>> irrad2electrons(1e-16, integration_time=2)
+(581, 24.1039415863879)
+>>> irrad2electrons(1e-16, integration_time=2)
+(520, 22.80350850198276)
+>>> irrad2electrons(1e-16, integration_time=2)
+(564, 23.748684174075834)
+>>> irrad2electrons(1e-16, integration_time=2)
+(592, 24.331050121192877)
+>>> def irrad2electrons(irrad, l=550e-9, aperture=1.0, integration_time=1.0, transmission=1.0, qe=1.0, eod=1.0):
+...    return np.poisson((irrad * aperture * integration_time * transmission * qe * eod) / photon_energy_per_wavelength(l))
+... 
+>>> irrad2electrons(1e-16)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "<stdin>", line 2, in irrad2electrons
+  File "/home/rah/Projects/Bildkedde/venv-bk/lib/python3.8/site-packages/numpy/__init__.py", line 214, in __getattr__
+    raise AttributeError("module {!r} has no attribute "
+AttributeError: module 'numpy' has no attribute 'poisson'
+>>> def irrad2electrons(irrad, l=550e-9, aperture=1.0, integration_time=1.0, transmission=1.0, qe=1.0, eod=1.0):
+...    return np.random.poisson((irrad * aperture * integration_time * transmission * qe * eod) / photon_energy_per_wavelength(l))
+... 
+>>> irrad2electrons(1e-16)
+292
+>>> irrad2electrons(1e-16)
+284
+>>> irrad2electrons(1e-16)
+283
+>>> irrad2electrons(1e-16)
+284
+>>> irrad2electrons(1e-16)
+302
+>>> irrad2electrons(1e-16)
+298
+>>> np.random.rand((2048,2048))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "mtrand.pyx", line 1169, in numpy.random.mtrand.RandomState.rand
+  File "mtrand.pyx", line 423, in numpy.random.mtrand.RandomState.random_sample
+  File "_common.pyx", line 270, in numpy.random._common.double_fill
+TypeError: 'tuple' object cannot be interpreted as an integer
+>>> irrad = np.random.rand(2048*2048, 1e-17, 1e-15).reshape((2048,2048))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "mtrand.pyx", line 1169, in numpy.random.mtrand.RandomState.rand
+  File "mtrand.pyx", line 423, in numpy.random.mtrand.RandomState.random_sample
+  File "_common.pyx", line 270, in numpy.random._common.double_fill
+TypeError: 'float' object cannot be interpreted as an integer
+>>> irrad = np.random.uniform(2048*2048, 1e-17, 1e-15).reshape((2048,2048))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "mtrand.pyx", line 1108, in numpy.random.mtrand.RandomState.uniform
+  File "_common.pyx", line 577, in numpy.random._common.cont
+TypeError: 'float' object cannot be interpreted as an integer
+>>> irrad = np.random.rand(2048,2048) * 1e-15
+>>> irrad += 1e-17
+>>> irrad.min()
+1.0000147862680211e-17
+>>> irrad.max()
+1.0099998362377047e-15
+>>> import matplotlib.pyplot as plt
+>>> plt.imshow(irrad)
+<matplotlib.image.AxesImage object at 0x7fef26456160>
+>>> plt.show()
+>>> electrons = irrad2electrons(irrad)
+>>> plt.imshow(electrons)
+<matplotlib.image.AxesImage object at 0x7fef26774070>
+>>> plt.show()
+>>> def electrons2voltage(electrons, ve=1e-6, vv=1.0):
+...    return electrons * ve * vv
+... 
+>>> electrons2voltage(electrons)
+array([[2.663e-03, 2.359e-03, 7.270e-04, ..., 1.210e-03, 2.490e-04,
+        1.544e-03],
+       [3.430e-04, 1.140e-04, 1.994e-03, ..., 4.400e-04, 2.804e-03,
+        2.677e-03],
+       [1.788e-03, 2.050e-03, 1.752e-03, ..., 9.600e-05, 1.969e-03,
+        2.785e-03],
+       ...,
+       [5.330e-04, 2.671e-03, 8.360e-04, ..., 1.203e-03, 1.333e-03,
+        1.602e-03],
+       [5.080e-04, 1.553e-03, 2.459e-03, ..., 2.325e-03, 1.924e-03,
+        5.050e-04],
+       [8.640e-04, 7.620e-04, 6.280e-04, ..., 1.859e-03, 1.717e-03,
+        1.200e-03]])
+>>> volts = electrons2voltage(electrons)
+>>> volts.min()
+1.1e-05
+>>> volts.max()
+0.002989
+>>> def voltage2counts(voltage, vswing=1.0, bits=12):
+...    # vswing = vref_adc - vmin_adc
+...    # we'll just call vmin=0 for now, and vref represents maximum voltage which can be captured by ADC
+...    K = vswing / 2**bits
+...    return np.round(voltage / K)
+... 
+>>> def voltage2counts(voltage, vswing=1.0, bits=12, mode="round"):
+...    # vswing = vref_adc - vmin_adc
+...    # we'll just call vmin=0 for now, and vref represents maximum voltage which can be captured by ADC
+...    K = vswing / 2**bits
+...    if mode=="round":
+...       return np.round(voltage / K)
+...    elif mode=="floor":
+...       return np.floor(voltage / K)
+... 
+>>> voltage2counts(volts)
+array([[11., 10.,  3., ...,  5.,  1.,  6.],
+       [ 1.,  0.,  8., ...,  2., 11., 11.],
+       [ 7.,  8.,  7., ...,  0.,  8., 11.],
+       ...,
+       [ 2., 11.,  3., ...,  5.,  5.,  7.],
+       [ 2.,  6., 10., ..., 10.,  8.,  2.],
+       [ 4.,  3.,  3., ...,  8.,  7.,  5.]])
+>>> DN = voltage2counts(volts)
+>>> DN
+array([[11., 10.,  3., ...,  5.,  1.,  6.],
+       [ 1.,  0.,  8., ...,  2., 11., 11.],
+       [ 7.,  8.,  7., ...,  0.,  8., 11.],
+       ...,
+       [ 2., 11.,  3., ...,  5.,  5.,  7.],
+       [ 2.,  6., 10., ..., 10.,  8.,  2.],
+       [ 4.,  3.,  3., ...,  8.,  7.,  5.]])
+>>> plt.imshow(DN)
+<matplotlib.image.AxesImage object at 0x7fef26759100>
+>>> plt.show()
+>>> 
+

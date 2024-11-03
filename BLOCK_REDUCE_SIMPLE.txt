@@ -1,0 +1,32 @@
+>>> def block_reduce(arr, func, kernel_shape):
+...    return func(arr.reshape(*kernel_shape, -1), axis=(0,1)).reshape(arr.shape // np.asarray(kernel_shape))
+... 
+>>> block_reduce(b, np.sum, (5,5))
+array([[25., 25., 25., ..., 25., 25., 25.],
+       [25., 25., 25., ..., 25., 25., 25.],
+       [25., 25., 25., ..., 25., 25., 25.],
+       ...,
+       [25., 25., 25., ..., 25., 25., 25.],
+       [25., 25., 25., ..., 25., 25., 25.],
+       [25., 25., 25., ..., 25., 25., 25.]])
+>>> block_reduce(b, np.max, (5,5))
+array([[1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       ...,
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.]])
+>>> block_reduce(b, np.mean, (5,5))
+array([[1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       ...,
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.],
+       [1., 1., 1., ..., 1., 1., 1.]])
+>>> block_reduce(b, np.mean, (5,5)).shape
+(64, 64)
+>>> # Should ensure this will always return views into the source array prior to summing, and should probably also set values of return array equal to sum result (reserve space)
+>>> exit()
+
