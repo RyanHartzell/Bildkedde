@@ -400,9 +400,9 @@ if __name__=="__main__":
     
     # Project camera frame to image plane with SIMPLE IDEAL PERSPECTIVE TRANSFORM
     def camera2image_plane(target, efl=1.0):
-        x = efl * target[0] / target[2]
-        y = efl * target[1] / target[2]
-        return x,y
+        u = efl * target[0] / target[2] # u in +X = columns
+        v = efl * target[1] / target[2] # v in -Y = rows
+        return v,u # NOTE: V RETURNED IN ROW POSITION!!!
     
     # We want one which takes actual world coords, transforms to camera frame, and then applies boresight2cam_frame_2boresight
     def world2boresight():
@@ -426,9 +426,7 @@ if __name__=="__main__":
     world_pts = c.get_inverse_camera_matrix().T @ np.vstack([cam_pts, np.ones_like(cam_pts[0])]) # Make homogenous coordinates [x, y, z, 1]
     print(world_pts.shape)
 
-    fig = plt.figure()
-    ax = fig.gca(projection="3d")
-
+    ax = plt.subplot(projection='3d')
     ax.scatter(4*world_pts[0], 4*world_pts[1], 4*world_pts[2], c="orange", alpha=0.2)
     ax.scatter(20*world_pts[0], 20*world_pts[1], 20*world_pts[2])
     ax.plot([0.0, c.direction[0]*20], [0.0, c.direction[1]*20], [0.0, c.direction[2]*20], '--r')
@@ -491,8 +489,8 @@ if __name__=="__main__":
     from simple_sensor_model import *
 
     # Create a bunch of world frame XYZ points with associated  
-    bx = np.random.uniform(-np.pi/8, np.pi/8, 1000)
-    by = np.random.uniform(-np.pi/8, np.pi/8, 1000)
+    bx = np.random.uniform(-np.deg2rad(5)/2, np.deg2rad(5)/2, 1000)
+    by = np.random.uniform(-np.deg2rad(5)/2, np.deg2rad(5)/2, 1000)
     r = np.random.uniform(5000, 50000, 1000) # units of km
 
     # Setup a camera
@@ -503,15 +501,22 @@ if __name__=="__main__":
     cam_pts = np.array(boresight2camera(bx, by)) * r # scale out to actual distance along unit vector direction
 
     # Project to image plane
-    img_pts = camera2image_plane(cam_pts, efl=1.0)
+    Nx = Ny = 256
+    physical_pixel_size = 0.001 # 1mm in units of m
+    detector_physical_size = (Ny*physical_pixel_size, Nx*physical_pixel_size)
+    efl = afov_to_effective_focal_length(np.deg2rad(5), detector_array_physical_size=max(detector_physical_size))
+    img_pts = camera2image_plane(cam_pts, efl=efl) # Returns physical units based on length of efl
 
     # Show img_pts in image plane
-    plt.scatter(img_pts[0], img_pts[1], c=r)
+    plt.scatter(img_pts[1], img_pts[0], c=r)
+    plt.title("Image Plane Coordinates [m]")
+    plt.xlabel('U')
+    plt.ylabel('V')
     plt.show()
 
     # Now run these points through sensor model given sun angle and range and target size and albedo...
     from simple_sensor_model import *
-    aperture_refferred_irrads = irradiance_at_aperture(AVG_SOLAR_RADIANCE, SUN_AREA, 10.0**2, 0.7, np.random.uniform(0., np.pi/4, size=r.shape), np.random.uniform(SUN_EARTH_DISTANCE, SUN_EARTH_DISTANCE+1e3, size=r.shape), r)
+    aperture_refferred_irrads = irradiance_at_aperture(AVG_SOLAR_RADIANCE, SUN_AREA, 1.0**2, 0.5, np.random.uniform(0., np.pi/4, size=r.shape), np.random.uniform(SUN_EARTH_DISTANCE, SUN_EARTH_DISTANCE+1e3, size=r.shape), r)
 
     print(aperture_refferred_irrads.shape)
     print(aperture_refferred_irrads.mean())
@@ -519,83 +524,88 @@ if __name__=="__main__":
     print(aperture_refferred_irrads.min())
     print(aperture_refferred_irrads.max())
 
-    # Show img_pts on focal plane, colored by brightness
-    physical_pixel_size = 0.001 # 1mm in units of m
-    fpa_pts = np.asarray(img_pts) * physical_pixel_size * 1000 # now units of mm
+    # Show img_pts on focal plane, colored by brightness and converted to detector units (generally [mm])
+    # physical_pixel_size = 0.001 # 1mm in units of m
+    fpa_pts = np.asarray(img_pts) * 1000 # / (physical_pixel_size * 1000) # now units of mm
 
-    plt.scatter(fpa_pts[0], fpa_pts[1], c=aperture_refferred_irrads)
+    plt.scatter(fpa_pts[1], fpa_pts[0], c=aperture_refferred_irrads)
     plt.xlabel("FPA X (column) [mm]")
     plt.ylabel("FPA Y (row) [mm]")
     plt.show()
 
-    Nx = Ny = 256
-    super_sampling_factor = 3
+    SUPER_SAMPLING_FACTOR = 5
 
     # based on 256x256 input, x3 in each direction for 3x3 sumpsamples per pixel (should be turned into a variable supersampling function)
-    arr = np.ones((Ny*super_sampling_factor, Nx*super_sampling_factor)) * 1e-17
+    arr = np.ones((Ny*SUPER_SAMPLING_FACTOR, Nx*SUPER_SAMPLING_FACTOR)) * 1e-17 # Constant background of 1e-17
     print("Supersampled scene shape:", arr.shape)
 
     # Should technically include a shift here to origin at corner of image, rather than boresight
     pix_pts = np.zeros_like(fpa_pts)
-    pix_pts[0] = fpa_pts[0]/Ny + Ny/2
-    pix_pts[1] = fpa_pts[1]/Nx + Nx/2
-    plt.scatter(pix_pts[0], pix_pts[1], c=aperture_refferred_irrads)
+    pix_pts[0] = fpa_pts[0]/ (physical_pixel_size * 1000) + Ny/2
+    pix_pts[1] = fpa_pts[1]/ (physical_pixel_size * 1000) + Nx/2
+    plt.scatter(pix_pts[1], pix_pts[0], c=aperture_refferred_irrads)
     plt.xlabel("Pixel X (column) [pix]")
     plt.ylabel("Pixel Y (row) [pix]")
     plt.colorbar()
     plt.show()
 
-    # Instead of a random sampling of deltas, you can instead project an actual radiance map to the focal plane (converted to irradiance) and work with that as input
-    # I just need to put the necessary hooks in to make this stuff easy to extend
-
-    # deltas = np.random.choice(np.array([False,True]), arr.shape, p=[0.99995, 0.00005])
-    # n_deltas = deltas.sum()
-    # print(f"% deltas = {n_deltas / arr.size}")
+    # RH: NOTE - EVERYTHING LOOKS GREAT UP UNTIL THIS POINT!!!!!!!!!!!!!!!!!!!!!!!
 
     # Deltas and irradiances given by pix_pts and aperture_referred_irrads
-    pix_pts_ss_inds = np.array([pix_pts[0]//(Ny*super_sampling_factor), pix_pts[1]//(Nx*super_sampling_factor)], dtype=np.int64).T
+    # pix_pts SHOULD BE in the ranges ROW_DIR=(-0.5, Ny-0.5) and COL_DIR=(-0.5,Nx-0.5)
+
+    # print(pix_pts.min(), pix_pts.max())
+
+    # I believe this is our problem line
+    pix_pts_ss_inds = np.round(np.c_[pix_pts[0]*SUPER_SAMPLING_FACTOR, pix_pts[1]*SUPER_SAMPLING_FACTOR]).astype(np.int64)
+    print(pix_pts_ss_inds.shape)
+    print(pix_pts_ss_inds.min(), pix_pts_ss_inds.max())
+
+    plt.scatter(pix_pts[1], pix_pts[0], c=aperture_refferred_irrads)
+    plt.xlabel("SS Pixel X (column) [pix]")
+    plt.ylabel("SS Pixel Y (row) [pix]")
+    plt.colorbar()
+    plt.show()
 
     # Need some array tricks here - deltas can occupy same pixel and need to be accumulated fast, possibly by sorting inds into blocks or aggegrating all instances of each repeated index
     for i in range(len(aperture_refferred_irrads)):
-        arr[pix_pts_ss_inds[i]] = arr[pix_pts_ss_inds[i]] + aperture_refferred_irrads[i]
+        arr[pix_pts_ss_inds[i,0],pix_pts_ss_inds[i,1]] = arr[pix_pts_ss_inds[i,0],pix_pts_ss_inds[i,1]] + aperture_refferred_irrads[i]
 
-    # plt.imshow(arr, norm=LogNorm())
-    # plt.show()
+    plt.imshow(arr, cmap='inferno', norm=LogNorm())
+    plt.title("Aperture Referred In-Band Irradiance")
+    plt.show()
 
     print(f"Aperture Referred In-Band Irradiance: Mean={arr.mean()}, Max={arr.max()}, Min={arr.min()}")
 
     start = time.time()
 
     # test of psf == autocorrelation of aperture, mtf == FFT(psf) -> Currently working!!!
-    psf = empirical_psf(low_pass(arr, 11, filter_type='ideal'))
+    psf = empirical_psf(low_pass(arr, 2.5, filter_type='gaussian'))
     mtf = np.fft.fftshift(np.fft.fft2(psf / psf.sum())) # We want to use the FFT of the volume-normalized psf array (sums to 1)
 
-    # filtered = np.abs(np.fft.fftshift(np.fft.ifft2(np.fft.fftshift(np.fft.fft2(arr)) * mtf))).astype(float)
-    filtered = np.abs(np.fft.ifftshift(np.fft.ifft2(np.fft.fftshift(np.fft.fft2(arr)) * mtf))).astype(float)
-    plt.imshow(filtered, cmap='inferno', norm=LogNorm())
-    plt.show()
+    filtered = np.abs(np.fft.fftshift(np.fft.ifft2(np.fft.fftshift(np.fft.fft2(arr)) * mtf))).astype(float)
+    # plt.imshow(filtered, cmap='inferno')
+    # plt.show()
 
+    # THIS MIGHT BE CAUSING OVER COUNTING SOMEHOW? MAYBE MY FILTERING METHOD NEEDS BETTER NORMALIZATION?????
     # Aggregate into "original" N x M image by summing every chunk of KxK subarrays
-    # This needs to be quicker, but for now this double for loop list comprehension is fine
-    print(filtered.shape)
-    agg = np.asarray([np.vsplit(v, filtered.shape[0]//super_sampling_factor) for v in np.hsplit(filtered, filtered.shape[1]//super_sampling_factor)])
-    print(agg.shape)
+    agg = block_reduce(filtered, np.sum, (SUPER_SAMPLING_FACTOR, SUPER_SAMPLING_FACTOR))
 
-    agg = agg.sum(axis=(2,3))
-    print(agg.shape)
+    # plt.imshow(agg)
+    # plt.show()
 
-    plt.imshow(agg)
-    plt.show()
+    # Optionally move agg to GPU
 
     # Now send these through the sensor model, assuming total irradiance on detector after spread applied
+    # electrons = irrad2electrons(agg, integration_time=0.5, transmission=0.79, qe=0.89)
     electrons = irrad2electrons(agg)
     print(f"Electrons: Mean={electrons.mean()}, Max={electrons.max()}, Min={electrons.min()}")
     del agg
 
-    electrons = apply_photo_response_non_uniformity(electrons, 0.01)
+    electrons = apply_photo_response_non_uniformity(electrons)
     print(f"Post-PRNU: Mean={electrons.mean()}, Max={electrons.max()}, Min={electrons.min()}")
 
-    electrons = apply_dark_fixed_pattern_noise(electrons, dark_signal(electrons, 10)) # electrons per second, and poisson process applied
+    electrons = apply_dark_fixed_pattern_noise(electrons, dark_signal(electrons, 3.2, 0.5)) # electrons per second, and poisson process applied
     print(f"Post-Dark: Mean={electrons.mean()}, Max={electrons.max()}, Min={electrons.min()}")
 
     voltage = electrons2voltage(electrons)
@@ -605,7 +615,7 @@ if __name__=="__main__":
     counts = voltage2counts(voltage)
 
     print(f"The staring detector array model results in an image of counts given an array of input irradiances.")
-    print(f"Total execution time = {time.time() - start}")
+    print(f"Total execution time = {time.time() - start} [s]")
     print(f"Counts: Mean={counts.mean()}, Max={counts.max()}, Min={counts.min()}")
 
     if isinstance(counts, cp.ndarray):

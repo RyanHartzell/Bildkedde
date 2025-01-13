@@ -27,8 +27,8 @@ def low_pass(img, cut_off, filter_type='ideal', butterworth_order=1):
     """
     # for now, assuming 2D array as input
     r,c = img.shape
-    u = np.arange(r)
-    v = np.arange(c)
+    u = np.arange(c) # Columns = X
+    v = np.arange(r) # Rows = Y
     u, v = np.meshgrid(u, v)
     low_pass = np.sqrt( (u-r/2)**2 + (v-c/2)**2 )
 
@@ -71,6 +71,22 @@ def empirical_psf(pupil):
     pupil_fft = np.fft.fftshift(np.fft.fft2(pupil))
     return np.fft.fftshift(np.fft.ifft2(pupil_fft * pupil_fft[::-1,::-1])) # May not need reveresed indices here
 
+# Trying a smarter, vectorized implementation I grabbed from scipy/astropy
+# I think this should work on a batch dimension too? by providing the batch dim as 1 in the kernel shape
+def block_reduce(arr, func, kernel_shape):
+    blocked = reshape_as_blocks(arr, kernel_shape)
+    return func(blocked, axis=tuple(range(arr.ndim, blocked.ndim))).reshape(arr.shape // np.asarray(kernel_shape))
+
+# ALSO ripped from astropy
+# I think some of the overhead here could be constructed as part of an Optics object since the supersampling is linked to quality of PRF estimate
+def reshape_as_blocks(data, block_size):
+    nblocks = np.array(data.shape) // np.asarray(block_size)
+    new_shape = tuple(k for ij in zip(nblocks, np.asarray(block_size)) for k in ij)
+    nblocks_idx = tuple(range(0, len(new_shape), 2))  # even indices
+    block_idx = tuple(range(1, len(new_shape), 2))  # odd indices
+    return data.reshape(new_shape).transpose(nblocks_idx + block_idx) # This does the reshape and permutation necessary to have the last two dimensions be what we want to sum in our agg function
+
+
 if __name__=="__main__":
     import sys
 
@@ -82,7 +98,8 @@ if __name__=="__main__":
     if not (mode.lower() in ["mtf","separable"]):
         raise ValueError("Must run with mode of 'mtf' or 'separable'")
 
-    Nx = Ny = 1024
+    Nx = 1024
+    Ny = 1024
     super_sampling_factor = 9
 
     # based on 256x256 input, x3 in each direction for 3x3 sumpsamples per pixel (should be turned into a variable supersampling function)
@@ -133,6 +150,9 @@ if __name__=="__main__":
 
     # Aggregate into "original" 256 x 256 image by summing every chunk of NxN subarrays
     agg = np.sum([np.vsplit(v, filtered.shape[0]//super_sampling_factor) for v in np.hsplit(filtered, filtered.shape[0]//super_sampling_factor)], axis=(2,3)).T
+    agg2 = block_reduce(filtered, np.sum, (super_sampling_factor, super_sampling_factor))
+
+    print("RMSE of Block Reduce:   ", np.sqrt(np.mean((agg2 - agg)**2)), " [DN]")
 
     # Run full pipeline against "actual scene"
     from simple_sensor_model import *
