@@ -27,7 +27,7 @@ __all__ = [
 
 
 __name__ = 'bildkedde'
-__version__ = '0.0.2-dev'
+__version__ = '0.0.3-dev'
 __description__ = 'Lightweight sensor modeling package'
 
 __author__ = 'Ryan Hartzell'

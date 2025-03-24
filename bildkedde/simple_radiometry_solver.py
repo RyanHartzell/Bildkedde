@@ -307,7 +307,7 @@ At this point, we have the input to the sensor model!!! This will apply MTF effe
 
 # Use this to illuminate target from Sun (large area source at a distance)
 def generate_forward_parallel_sun_ray_bundle(N, unit_vec, radius):
-    X = np.random.uniform(-radius,radius,N)
+    X = np.random.uniform(-radius,radius,N) # Need to draw from a normal distribution instead
     Y = np.random.uniform(-radius,radius,N)
     return unit_vec + np.c_[X.flat, Y.flat, np.zeros(N)]
 
@@ -580,7 +580,7 @@ if __name__=="__main__":
     start = time.time()
 
     # test of psf == autocorrelation of aperture, mtf == FFT(psf) -> Currently working!!!
-    psf = empirical_psf(low_pass(arr, 2.5, filter_type='gaussian'))
+    psf = empirical_psf(low_pass(arr, 2.5/3, filter_type='gaussian')) # IDEAL FILTER WORKS AS EXPECTED!!!!! MUST BE THE GAUSSIAN THAT'S NOT NORMALIZED PROPERLY!!! SHOULD LOOK INTO NORMALIZING THE MTF TO PEAK INSTEAD???
     mtf = np.fft.fftshift(np.fft.fft2(psf / psf.sum())) # We want to use the FFT of the volume-normalized psf array (sums to 1)
 
     filtered = np.abs(np.fft.fftshift(np.fft.ifft2(np.fft.fftshift(np.fft.fft2(arr)) * mtf))).astype(float)

@@ -7,8 +7,9 @@
 #
 import numpy as np
 import matplotlib.pyplot as plt
+from abc import ABC
 
-class Link(object):
+class Link(ABC):
     """A base class which all Links of an Image Chain must inherit from. This
     class provides basic functionality for fourier operations such as fft, ifft,
     magnitude or phase, as well as basic plotting, and analysis helpers which

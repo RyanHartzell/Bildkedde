@@ -1,1 +1,158 @@
-Bildkedde
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="Bildkedde Homepage" />
+        <meta name="author" content="Ryan Hartzell" />
+        <title>Bildkedde - Home Page</title>
+        <link rel="icon" type="image/x-icon" href="assets/bklogo2_crop.png" />
+
+        <!-- Icon stuff
+        <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon.ico">
+        <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
+        <link rel="manifest" href="assets/favicon/site.webmanifest"> -->
+
+        <!-- Font Awesome icons (free version)-->
+        <script src="https://use.fontawesome.com/releases/v6.2.0/js/all.js" crossorigin="anonymous"></script>
+        <!-- <link rel="stylesheet"  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"> -->
+        <!-- Google fonts-->
+        <link href="https://fonts.googleapis.com/css?family=Catamaran:100,200,300,400,500,600,700,800,900" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css?family=Lato:100,100i,300,300i,400,400i,700,700i,900,900i" rel="stylesheet" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="css/styles.css" rel="stylesheet" />
+        <script src="js/scripts.js"></script>
+    </head>
+    <body id="page-top">
+        <!-- Navigation-->
+        <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
+            <div class="container px-5">
+                <a class="navbar-brand" href="#home">Homepage</a>
+                <a class="navbar-brand" href="#guide">User Guide</a>
+                <a class="navbar-brand" href="#api">API Docs</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                <div class="collapse navbar-collapse" id="navbarResponsive">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link" href="#page-top">Back to top</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <!-- Header-->
+        <header class="masthead text-center text-white align-items-center" style="justify-content: center;">
+            <div class="masthead-content">
+                <div class="container">
+                    <div class="row align-self align-items-center">
+                        <!-- <div class="col-md-6 order-lg-1 mt-5">
+                            <img class="img-fluid rounded-rect" style="border: 10px solid var(--mines-redrocks-rgb);" src="assets/bklogo2_crop.png" alt="Bildkedde Logo" />
+                        </div> -->
+                        <!-- <div class="col-md-6 order-lg-2 mt-5"> -->
+                        <h1 class="masthead-heading mb-0">Bildkedde</h1>
+                        <h3 class="masthead-subheading mb-0">A Python library for modular image chain simulation and modeling.</h3>
+                        <h3 class="masthead-subheading mt-3 mb-0">
+                            <i class="fa-solid fa-satellite"></i>
+                            <i class="fa-solid fa-camera"></i>
+                            <i class="fa-solid fa-rocket"></i>
+                        </h3>
+                        <!-- </div> -->
+                    </div>                    
+                    <!-- <h3 class="masthead-subsubheading mb-0" style="margin-top: 1.5rem;"></h3> -->
+                </div>
+            </div>
+
+            <!-- <div class="bg-circle" style="background-image: url('assets/img/pfp.jpeg'); background-size: cover; top: 12rem; right: 10rem; height: 20rem; width: 20rem;"></div> -->
+        </header>
+        <!-- Content section 1-->
+        <section id="welcome">
+            <div class="container px-5">
+                <div class="row gx-5 align-items-center">
+                    <div class="col-lg-6 order-lg-2">
+                        <div class="p-5"><img class="img-fluid rounded-rect" style="border: 10px solid var(--mines-redrocks-rgb)" src="assets/bklogo2_crop.png" alt="Bildkedde Logo" /></div>
+                    </div>
+                    <div class="col-lg-6 order-lg-1">
+                        <div class="p-5 align-items-center text-center">
+
+                            <h1 class="display-4" style="font-weight: bold;">Welcome to Bildkedde!</h1>
+                            <p class="display-6">
+                                Use Bildkedde for trade studies and "what if?" sensing scenarios for free, flexibly, and at a high fidelity!
+                                <!-- Use Bildkedde for trade studies and "what if?" scenarios when considering
+                                what your sensor can see under various constraints. I've stressed flexibility and fidelity
+                                during development, and the image chain modules of Bildkedde can be hooked into any
+                                radiance or irradiance scene that can be condensed into a dense representation.
+                                Specifically, Bildkedde is excellent for unresolved cases, but supports resolved imaging simulations managed by a third-party path-tracing or ray-based front-end engine. -->
+                            </p>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <h1 class="display-4" style="font-weight: bold;">Why use Bildkedde?</h1>
+                <p class="display-6">Bildkedde is a "batteries included" toolbox for general use in any end-to-end imaging sensor system simulation, trade study, or algorithm validation effort. A framework like this should work reliably, accurately, and efficiently, without sacrificing the fidelity of lower-level models in academia and industry.
+                </p> -->
+
+                <div class="container px-5" style="margin-bottom: 1rem; border: 10px solid var(--mines-darkblue); border-radius: 2.3rem;">
+                    <div class="p-5 align-items-center">
+                        <h1 class="display-4"> This library includes:</h1>
+                            <ul class="display-6">
+                                <li> MTF correlation-based methods for efficient unresolved or poorly resolved far-field target image simulation
+                                </li>
+                                <li> CCD and CMOS sensor component (and noise!) models
+                                </li>
+                                <li> Utilities for leveraging empirically determined calibration products, masks, and noise models
+                                </li>
+                                <li> Support for hardware acceleration on GPUs for efficient image chain execution
+                                </li>
+                                <li> Generics which can be used to extend the applicability of image chain components to other fields or other types of imaging hardware
+                                </li>
+                                <li> Ready to use pipelines common in imaging system workflows, abstracted for easy transfer to multiple application domains 
+                                </li>
+                            </ul>
+                        </h1>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="container">
+            <div class="row gx-5">
+                <div class="col-lg-6">
+                    <section id="guide"> 
+                        <div class="p-5 align-items-center">
+                            <p class="display-6"> <span class="badge bg-danger" style="text-align: center;">User Guide coming soon!</span></p>
+                        </div>
+                    </section>
+                </div>
+                <div class="col-lg-6">
+                    <section id="api">
+                    <div class="container">
+                        <div class="p-5 align-items-center">
+                            <p class="display-6"> <span class="badge bg-danger" style="text-align: center;">API Docs coming soon!</span></p>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lore section... make collapsable? Add traditional FAQ page for this? -->
+        <div class="row gx-5 align-items-center">
+            <div class="p-5 align-items-center text-center">
+                <h1 class="display-4" style="font-weight: bold;">Why the name?</h1>
+                <p class="display-6">
+                    Some lore: my grandparents were Pennsylvania Dutch, so I wanted the name to be a tribute to them. The language is primarily spoken - not written - and to a German speaker some pronunciations might seem incorrect, but are largely able to be understood. "Bild" means "image" in Pennsylvania Dutch, and "kedde" means chain ("kette" if you look this up in most German translations). Contracted - as Germanic folk love to do - we end up with "Bildkedde" which should be taken to mean literally "Image Chain". Now you know!
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer-->
+        <footer class="py-5" style="background-color: var(--mines-darkblue);">
+            <div class="container px-5"><p class="m-0 text-center text-white small">Copyright &copy; Ryan Hartzell 2023-present</p></div>
+            <div class="container px-5"><p class="m-0 text-center text-white small">All company, lab, or school logos belong to the entities they represent, and are thus not covered by the above copyright statement.</p></div>
+            <div class="container px-5"><p class="m-0 text-center text-white small">Based on the <a href="https://startbootstrap.com/theme/one-page-wonder/">theme</a> from <a href="https://davidmiller.io/">David Miller</a>. My minor modifications (not including imagery) are available under MIT license as well.</p></div>
+        </footer>
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="js/scripts.js"></script>
+    </body>
+</html>

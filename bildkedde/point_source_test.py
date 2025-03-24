@@ -133,7 +133,8 @@ if __name__=="__main__":
     elif mode == "mtf":
 
         # test of psf == autocorrelation of aperture, mtf == FFT(psf) -> Currently working!!!
-        psf = empirical_psf(low_pass(arr, 5, filter_type='ideal'))
+        # psf = empirical_psf(low_pass(arr, 5, filter_type='ideal'))
+        psf = low_pass(arr, 5/3, filter_type='gaussian') # Optionally, just pass in a straight up PSF (gaussians are easier to think about in image space)
         mtf = np.fft.fftshift(np.fft.fft2(psf / psf.sum())) # We want to use the FFT of the volume-normalized psf array (sums to 1)
 
         filtered = np.abs(np.fft.fftshift(np.fft.ifft2(np.fft.fftshift(np.fft.fft2(arr)) * mtf))).astype(float)
