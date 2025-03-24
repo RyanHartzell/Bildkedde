@@ -31,6 +31,7 @@
                 <a class="navbar-brand" href="#home">Homepage</a>
                 <a class="navbar-brand" href="#guide">User Guide</a>
                 <a class="navbar-brand" href="#api">API Docs</a>
+                <a class="navbar-brand" href="#lore">FAQ</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav ms-auto">
@@ -67,20 +68,27 @@
         <section id="welcome">
             <div class="container px-5">
                 <div class="row gx-5 align-items-center">
-                    <div class="col-lg-6 order-lg-2">
-                        <div class="p-5"><img class="img-fluid rounded-rect" style="border: 10px solid var(--mines-redrocks-rgb)" src="assets/bklogo2_crop.png" alt="Bildkedde Logo" /></div>
+                    <div class="col-lg-5 order-lg-2">
+                        <div class="p-3">
+                            <img class="img-fluid rounded-rect" style="border: 10px solid var(--mines-redrocks-rgb); object-fit: contain;" src="assets/bklogo2_crop.png" alt="Bildkedde Logo" />
+                        </div>
                     </div>
-                    <div class="col-lg-6 order-lg-1">
+                    <div class="col-lg-7 order-lg-1">
                         <div class="p-5 align-items-center text-center">
 
-                            <h1 class="display-4" style="font-weight: bold;">Welcome to Bildkedde!</h1>
+                            <h1 class="display-4" style="font-weight: bold;">Why Bildkedde?</h1>
                             <p class="display-6">
-                                Use Bildkedde for trade studies and "what if?" sensing scenarios for free, flexibly, and at a high fidelity!
+                                The remote sensing industry is missing a FOSS - yet <strong style="color: var(--mines-redrocks-rgb);">high-fidelity and flexible</strong> -
+                                 imaging system simulation framework to support trade studies, prototyping, and simulation
+                                  use cases, especially for <strong style="color: var(--mines-redrocks-rgb);"> space-based imaging applications</strong>.
                                 <!-- Use Bildkedde for trade studies and "what if?" scenarios when considering
                                 what your sensor can see under various constraints. I've stressed flexibility and fidelity
                                 during development, and the image chain modules of Bildkedde can be hooked into any
                                 radiance or irradiance scene that can be condensed into a dense representation.
                                 Specifically, Bildkedde is excellent for unresolved cases, but supports resolved imaging simulations managed by a third-party path-tracing or ray-based front-end engine. -->
+                            </p>
+                            <p class="display-5">
+                                <strong>Bildkedde is a first step towards filling that need.</strong>
                             </p>
 
                         </div>
@@ -91,21 +99,21 @@
                 <p class="display-6">Bildkedde is a "batteries included" toolbox for general use in any end-to-end imaging sensor system simulation, trade study, or algorithm validation effort. A framework like this should work reliably, accurately, and efficiently, without sacrificing the fidelity of lower-level models in academia and industry.
                 </p> -->
 
-                <div class="container px-5" style="margin-bottom: 1rem; border: 10px solid var(--mines-darkblue); border-radius: 2.3rem;">
+                <div class="container px-5" style="margin-bottom: 1rem; border: 10px solid var(--mines-darkblue); border-radius: 2.3rem; background-color: var(--mines-darkblue);">
                     <div class="p-5 align-items-center">
-                        <h1 class="display-4"> This library includes:</h1>
+                        <h1 class="display-4" style="color: lightsalmon;"> This library includes:</h1>
                             <ul class="display-6">
-                                <li> MTF correlation-based methods for efficient unresolved or poorly resolved far-field target image simulation
+                                <li style="color: lightblue;"> MTF correlation-based methods for efficient unresolved or poorly resolved far-field target image simulation
                                 </li>
-                                <li> CCD and CMOS sensor component (and noise!) models
+                                <li style="color:  lightsalmon;"> CCD and CMOS sensor component (and noise!) models
                                 </li>
-                                <li> Utilities for leveraging empirically determined calibration products, masks, and noise models
+                                <li style="color: lightblue;"> Utilities for leveraging empirically determined calibration products, masks, and noise models
                                 </li>
-                                <li> Support for hardware acceleration on GPUs for efficient image chain execution
+                                <li style="color: lightsalmon;"> Support for hardware acceleration on GPUs for efficient image chain execution
                                 </li>
-                                <li> Generics which can be used to extend the applicability of image chain components to other fields or other types of imaging hardware
+                                <li style="color: lightblue;"> Generics which can be used to extend the applicability of image chain components to other fields or other types of imaging hardware
                                 </li>
-                                <li> Ready to use pipelines common in imaging system workflows, abstracted for easy transfer to multiple application domains 
+                                <li style="color: lightsalmon;"> Ready to use pipelines common in imaging system workflows, abstracted for easy transfer to multiple application domains 
                                 </li>
                             </ul>
                         </h1>
@@ -135,20 +143,25 @@
         </div>
 
         <!-- Lore section... make collapsable? Add traditional FAQ page for this? -->
-        <div class="row gx-5 align-items-center">
-            <div class="p-5 align-items-center text-center">
-                <h1 class="display-4" style="font-weight: bold;">Why the name?</h1>
-                <p class="display-6">
-                    Some lore: my grandparents were Pennsylvania Dutch, so I wanted the name to be a tribute to them. The language is primarily spoken - not written - and to a German speaker some pronunciations might seem incorrect, but are largely able to be understood. "Bild" means "image" in Pennsylvania Dutch, and "kedde" means chain ("kette" if you look this up in most German translations). Contracted - as Germanic folk love to do - we end up with "Bildkedde" which should be taken to mean literally "Image Chain". Now you know!
-                </p>
+        <section id="lore">
+            <div class="container px-5">
+                <div class="row gx-5 align-items-center">
+                    <div class="p-5 align-items-center text-center">
+                        <h1 class="display-4" style="font-weight: bold;">Why the name?</h1>
+                        <p class="display-6">
+                            Some lore: my grandparents were Pennsylvania Dutch, so I wanted the name to be a tribute to them. The language is primarily spoken - not written - and to a German speaker some pronunciations or grammar might seem incorrect, but are largely able to be understood. "Bild" means "image" in Pennsylvania Dutch, and "kedde" means chain ("kette" if you look this up in most German translations). Contracted - as Germanic folk love to do - we end up with "Bildkedde" which should be taken to mean literally "Image Chain". Now you know!
+                        </p>
+                    </div>
+                </div>
             </div>
-        </div>
+        </section>
 
         <!-- Footer-->
         <footer class="py-5" style="background-color: var(--mines-darkblue);">
             <div class="container px-5"><p class="m-0 text-center text-white small">Copyright &copy; Ryan Hartzell 2023-present</p></div>
-            <div class="container px-5"><p class="m-0 text-center text-white small">All company, lab, or school logos belong to the entities they represent, and are thus not covered by the above copyright statement.</p></div>
-            <div class="container px-5"><p class="m-0 text-center text-white small">Based on the <a href="https://startbootstrap.com/theme/one-page-wonder/">theme</a> from <a href="https://davidmiller.io/">David Miller</a>. My minor modifications (not including imagery) are available under MIT license as well.</p></div>
+            <div class="container px-5"><p class="m-0 text-center text-white small">All content is my own, and is released under the MIT License. This work is to-date not supported by and government or commercial funding.</p></div>
+            <div class="container px-5"><p class="m-0 text-center text-white small">If you use my software, <em>don't be a dick</em> - use these tools responsibly, ethically, and in support of humankind.</p></div>
+            <div class="container px-5"><p class="m-0 text-center text-white small">Based on the <a href="https://startbootstrap.com/theme/one-page-wonder/">theme</a> from <a href="https://davidmiller.io/">David Miller</a>.</p></div>
         </footer>
         <!-- Bootstrap core JS-->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
